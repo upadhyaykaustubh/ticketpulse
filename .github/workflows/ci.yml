@@ -1,4 +1,4 @@
-name: TicketPulse CI Pipeline
+name: TicketPulse CI/CD Pipeline
 
 on:
   push:
@@ -53,3 +53,20 @@ jobs:
           ignore-unfixed: true
           vuln-type: 'os,library'
           severity: 'CRITICAL'
+
+  deploy:
+    name: Continuous Deployment to AWS EC2
+    runs-on: ubuntu-latest
+    needs: security-scan
+
+    steps:
+      - name: Deploy to EC2 via SSH
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ${{ secrets.EC2_USER }}
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd ~/ticketpulse
+            git pull origin main
+            docker compose up -d --build

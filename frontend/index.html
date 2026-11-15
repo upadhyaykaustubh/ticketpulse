@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TicketPulse | High-Concurrency Flash Sale</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @keyframes pulse-glow {
+            0%, 100% { opacity: 1; filter: drop-shadow(0 0 15px rgba(16, 185, 129, 0.6)); }
+            50% { opacity: 0.7; filter: drop-shadow(0 0 5px rgba(16, 185, 129, 0.2)); }
+        }
+
+        .glow {
+            animation: pulse-glow 2s infinite;
+        }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans">
+
+    <!-- Top Navigation -->
+    <header class="border-b border-slate-800 bg-slate-900/60 backdrop-blur sticky top-0 z-50">
+        <div class="max-w-5xl mx-auto px-4 py-4 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <span class="text-2xl">🎫</span>
+                <div>
+                    <h1 class="text-xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-400 bg-clip-text text-transparent">TicketPulse</h1>
+                    <p class="text-xs text-slate-400">High-Concurrency Resilient Ticketing Engine</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-4 text-xs font-mono">
+                <span class="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
+                    System: Operational
+                </span>
+                <span class="hidden sm:inline px-2.5 py-1 rounded-full bg-slate-800 text-slate-300 border border-slate-700">
+                    🛡️ Rate Limit: 5 req/s (Burst: 10)
+                </span>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-4xl w-full mx-auto p-4 sm:p-6 space-y-6">
+
+        <!-- Concert Event Banner Card -->
+        <div class="bg-gradient-to-br from-slate-900 to-slate-900/90 border border-slate-800 rounded-2xl p-6 shadow-2xl relative overflow-hidden">
+            <div class="absolute -right-10 -bottom-10 w-48 h-48 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none"></div>
+
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-6">
+                <div>
+                    <span class="inline-block px-3 py-1 bg-cyan-500/10 text-cyan-400 text-xs font-semibold rounded-full border border-cyan-500/20 mb-2">🔥 Tatkal Flash Sale Live</span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-white">Coldplay: Music of the Spheres Tour</h2>
+                    <p class="text-sm text-slate-400 mt-1">AWS EC2 Multi-Tier Microservice Stack • Redis Atomic Lua Inventory</p>
+                </div>
+                <div class="text-right">
+                    <div class="text-xs text-slate-400 uppercase tracking-wider font-semibold">Price per ticket</div>
+                    <div class="text-2xl font-bold text-emerald-400">FREE TIER</div>
+                </div>
+            </div>
+
+            <!-- Live Inventory Progress Bar -->
+            <div class="space-y-2 bg-slate-950/60 p-4 rounded-xl border border-slate-800/80">
+                <div class="flex justify-between items-center text-sm font-medium">
+                    <span class="text-slate-300">Remaining Tickets Inventory:</span>
+                    <span id="ticket-count-text" class="text-emerald-400 font-bold font-mono text-lg">Fetching...</span>
+                </div>
+                <div class="w-full bg-slate-800 rounded-full h-3.5 overflow-hidden p-0.5">
+                    <div id="progress-bar" class="bg-gradient-to-r from-emerald-500 to-cyan-400 h-2.5 rounded-full transition-all duration-500 w-full"></div>
+                </div>
+                <div class="flex justify-between text-xs text-slate-500 pt-1">
+                    <span>Sold Out (0)</span>
+                    <span>Max Capacity (100)</span>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6">
+                <button id="book-btn" onclick="bookTicket()" class="w-full py-3.5 px-6 bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-bold rounded-xl shadow-lg shadow-emerald-500/20 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer">
+                    <span>🎟️</span>
+                    <span>Book 1 Ticket (Normal)</span>
+                </button>
+
+                <button id="burst-btn" onclick="simulateBurst()" class="w-full py-3.5 px-6 bg-gradient-to-r from-rose-600 to-amber-600 hover:from-rose-500 hover:to-amber-500 text-white font-bold rounded-xl shadow-lg shadow-rose-500/20 active:scale-95 transition-all flex items-center justify-center gap-2 cursor-pointer">
+                    <span>⚡</span>
+                    <span>Burst Test (10 Rapid Clicks)</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Realtime Telemetry Logs Card -->
+        <div class="bg-slate-900 border border-slate-800 rounded-xl p-4 shadow-xl">
+            <div class="flex justify-between items-center mb-3">
+                <h3 class="text-sm font-bold text-slate-300 flex items-center gap-2">
+                    <span>📡</span> Live Request Telemetry & NGINX Status
+                </h3>
+                <button onclick="clearLogs()" class="text-xs text-slate-500 hover:text-slate-300 transition">Clear Log</button>
+            </div>
+            <div id="logs-box" class="bg-slate-950 rounded-lg p-3 font-mono text-xs text-slate-400 space-y-1.5 max-h-48 overflow-y-auto border border-slate-800/80">
+                <div class="text-slate-600 italic">Waiting for booking requests... Click buttons above to test.</div>
+            </div>
+        </div>
+
+        <!-- Quick Observability Links -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <a id="grafana-link" href=":3000" target="_blank" class="p-4 bg-slate-900/60 border border-slate-800 hover:border-slate-700 rounded-xl flex items-center justify-between group transition">
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl">📊</span>
+                    <div>
+                        <div class="text-sm font-bold text-slate-200 group-hover:text-emerald-400 transition">Grafana Live Dashboard</div>
+                        <div class="text-xs text-slate-500">Port 3000 • Metrics & Cgroups Visuals</div>
+                    </div>
+                </div>
+                <span class="text-slate-600 group-hover:text-slate-300 transition">↗</span>
+            </a>
+
+            <a id="metrics-link" href="/metrics" target="_blank" class="p-4 bg-slate-900/60 border border-slate-800 hover:border-slate-700 rounded-xl flex items-center justify-between group transition">
+                <div class="flex items-center gap-3">
+                    <span class="text-2xl">📈</span>
+                    <div>
+                        <div class="text-sm font-bold text-slate-200 group-hover:text-cyan-400 transition">Prometheus TSDB Metrics</div>
+                        <div class="text-xs text-slate-500">Endpoint /metrics • Raw Telemetry</div>
+                    </div>
+                </div>
+                <span class="text-slate-600 group-hover:text-slate-300 transition">↗</span>
+            </a>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-900 py-4 text-center text-xs text-slate-600">
+        TicketPulse DevOps Portfolio • Author: Kaustubh Upadhyay • AWS Free Tier Resilient Architecture
+    </footer>
+
+    <!-- Interactive JavaScript -->
+    <script>
+        const host = window.location.hostname;
+        document.getElementById('grafana-link').href = `http://${host}:3000`;
+
+        async function fetchInventory() {
+            try {
+                const res = await fetch('/tickets');
+                const data = await res.json();
+                const total = 100;
+                const remaining = data.available_tickets !== undefined ? data.available_tickets : (data.tickets_remaining !== undefined ? data.tickets_remaining : 0);
+
+                document.getElementById('ticket-count-text').innerText = `${remaining} / ${total} Left`;
+                const pct = Math.max(0, Math.min(100, (remaining / total) * 100));
+                const bar = document.getElementById('progress-bar');
+                bar.style.width = `${pct}%`;
+
+                if (pct <= 20) {
+                    bar.className = 'bg-rose-500 h-2.5 rounded-full transition-all duration-500';
+                } else if (pct <= 50) {
+                    bar.className = 'bg-amber-400 h-2.5 rounded-full transition-all duration-500';
+                } else {
+                    bar.className = 'bg-gradient-to-r from-emerald-500 to-cyan-400 h-2.5 rounded-full transition-all duration-500';
+                }
+            } catch (err) {
+                document.getElementById('ticket-count-text').innerText = 'Offline';
+            }
+        }
+
+        function appendLog(status, message, isError = false, isWarn = false) {
+            const box = document.getElementById('logs-box');
+            if (box.children.length === 1 && box.children[0].innerText.includes('Waiting for booking')) {
+                box.innerHTML = '';
+            }
+
+            const time = new Date().toLocaleTimeString();
+            let color = 'text-emerald-400';
+            let tag = status || '200 OK';
+
+            if (isError) {
+                color = 'text-rose-400 font-bold';
+            } else if (isWarn) {
+                color = 'text-amber-400 font-bold';
+            }
+
+            const item = document.createElement('div');
+            item.className = 'flex items-start gap-2';
+            item.innerHTML = `<span class="text-slate-600">[${time}]</span> <span class="px-1.5 py-0.2 rounded bg-slate-800 ${color}">${tag}</span>
+            <span>${message}</span>`;
+            box.prepend(item);
+        }
+
+        function clearLogs() {
+            document.getElementById('logs-box').innerHTML = '<div class="text-slate-600 italic">Logs cleared.</div>';
+        }
+
+        async function bookTicket() {
+            const start = performance.now();
+            try {
+                const res = await fetch('/book', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ quantity: 1 })
+                });
+                const dur = Math.round(performance.now() - start);
+
+                if (res.status === 201 || res.status === 200) {
+                    const data = await res.json();
+                    appendLog('201 OK', `✅ Ticket #${data.booking_id || 'CONFIRMED'} booked successfully (${dur}ms)`);
+                } else if (res.status === 429) {
+                    appendLog('429 LIMIT', `⚠️ Rate Limit Exceeded (5 req/s)! NGINX Leaky Bucket blocked request (${dur}ms)`, false, true);
+                } else if (res.status === 409) {
+                    appendLog('409 SOLD', `❌ Tickets Sold Out! Inventory reached 0 (${dur}ms)`, true);
+                } else {
+                    appendLog(`${res.status}`, `Server response: ${res.statusText}`, true);
+                }
+                fetchInventory();
+            } catch (e) {
+                appendLog('ERR', `Network error: ${e.message}`, true);
+            }
+        }
+
+        async function simulateBurst() {
+            appendLog('BURST', '🚀 Firing 10 concurrent requests to test NGINX Leaky Bucket...', false, false);
+            const promises = [];
+            for (let i = 0; i < 10; i++) {
+                promises.push(bookTicket());
+            }
+            await Promise.all(promises);
+        }
+
+        // Auto poll inventory every 3 seconds
+        fetchInventory();
+        setInterval(fetchInventory, 3000);
+    </script>
+</body>
+</html>
